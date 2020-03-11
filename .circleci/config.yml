@@ -1,5 +1,6 @@
 version: 2.1
-
+orbs:
+  probely: probely/security-scan@dev:alpha
 jobs:
 
   Test:
@@ -34,3 +35,7 @@ workflows:
       - Deploy:
           requires:
             - Test
+      - probely/scan:
+          requires:
+            - Deploy
+          target_id: 36oFYYRFkkuR
