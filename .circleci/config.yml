@@ -96,7 +96,7 @@ commands:
             echo "Everything is fine";
             exit $?
           else
-            echo "Vulnerabilities high detected";
+            echo "High vulnerabilities detected";
             exit 1
           fi
           exit 0
