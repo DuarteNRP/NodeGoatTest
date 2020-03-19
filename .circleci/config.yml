@@ -91,14 +91,6 @@ commands:
              -H "Content-Type: application/json" \
              -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '. | {lows:.lows,mediums:.mediums,highs:.highs}')
           echo $myvulnerabilities
-          myh=`echo $myvulnerabilities | jq '.highs'`
-          if [[ $myh == 0 ]]; then
-            echo "Everything is fine";
-            exit $?
-          else
-            echo "Vulnerabilities high detected";
-            exit 1
-          fi 
         name: Probely - Getting Security Scan Vulnerabilities
   
 description: |
