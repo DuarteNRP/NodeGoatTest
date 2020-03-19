@@ -17,6 +17,7 @@ commands:
         description: The id of the target (website) to scan.
         type: string
     steps:
+    - run: mkdir -p workspace
     - run:
         command: |
           # Check if API key is set
@@ -31,11 +32,73 @@ commands:
             echo "Please set the target id as a parameter for this orb."
             exit 1
           fi
-          curl -X POST \
-              -H "Authorization: JWT ${<< parameters.api_key >>}" \
-              << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/
+          myid=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
+          echo $mydir > workspace/echo-output
           exit $?
         name: Probely - Starting Security Scan
+    - persist_to_workspace:
+          root: workspace
+          paths:
+            - echo-output  
+  vulnerabilities:
+    description: |
+      Get the previous scan vulnerabilities.
+    parameters:
+      api_key:
+        default: PROBELY_API_KEY
+        description: |
+          The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
+        type: env_var_name
+      api_url:
+        default: https://api.probely.com
+        description: The URL of Probely's API
+        type: string
+      target_id:
+        description: The id of the target (website) to scan.
+        type: string
+    steps:
+    - run:
+        command: |
+          # Check if API key is set
+          if [ -z "${<< parameters.api_key >>}" ]; then
+            echo "NO PROBELY API KEY SET"
+            echo "Please set your API key in the << parameters.api_key >> variable"
+            exit 1
+          fi
+          # Check if target id is set
+          if [ -z "<< parameters.target_id >>" ]; then
+            echo "NO PROBELY TARGET ID SET"
+            echo "Please set the target id as a parameter for this orb."
+            exit 1
+          fi
+          myid=`cat workspace/echo-output`
+          mystatus=started
+          while [ $mystatus != completed ]
+          do
+            sleep 60s
+            mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+  		        -X GET \
+  		        -H "Content-Type: application/json" \
+  		        -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '.status' | tr -d '"')
+          done
+          myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+  		        -X GET \
+  		        -H "Content-Type: application/json" \
+  		        -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '. | {lows:.lows,mediums:.mediums,highs:.highs}')
+          echo $myvulnerabilities
+          myh=`echo $myvulnerabilities | jq '.highs'`
+          if [[ $myh == 0 ]]; then
+	          echo "Everything is fine";
+	          exit $?
+          else
+	          echo "Vulnerabilities high detected";
+	          exit 1
+          fi 
+        name: Probely - Getting Security Scan Vulnerabilities
+  
 description: |
   Use Probely to scan your web application for security vulnerabilities.
   Full orb source code: https://github.com/Probely/probely-orb
@@ -50,6 +113,7 @@ executors:
         TERM: dumb
       image: cibuilds/base:latest
     resource_class: small
+    working_directory: /tmp
 
 jobs:
   Scan:
@@ -68,9 +132,29 @@ jobs:
     - scan:
         target_id: << parameters.target_id >>
 
+  Vulnerabilities:
+    description: Get the previous scan vulnerabilities.
+    executor: alpine
+    parameters:
+      api_key:
+        default: PROBELY_API_KEY
+        description: |
+          The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
+        type: env_var_name
+      target_id:
+        description: The id of the target (website) to scan.
+        type: string
+    steps:
+    - vulnerabilities:
+        target_id: << parameters.target_id >>
+      
 workflows:
   version: 2
   build-and-test:
     jobs:
       - Scan:
+          target_id: 36oFYYRFkkuR
+      - Vulnerabilities:
+          requires:
+            - Scan
           target_id: 36oFYYRFkkuR
