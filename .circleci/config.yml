@@ -80,22 +80,22 @@ commands:
           do
             sleep 60s
             mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
-  		        -X GET \
-  		        -H "Content-Type: application/json" \
-  		        -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '.status' | tr -d '"')
+              -X GET \
+              -H "Content-Type: application/json" \
+              -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '.status' | tr -d '"')
           done
           myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
-  		        -X GET \
-  		        -H "Content-Type: application/json" \
-  		        -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '. | {lows:.lows,mediums:.mediums,highs:.highs}')
+             -X GET \
+             -H "Content-Type: application/json" \
+             -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '. | {lows:.lows,mediums:.mediums,highs:.highs}')
           echo $myvulnerabilities
           myh=`echo $myvulnerabilities | jq '.highs'`
           if [[ $myh == 0 ]]; then
-	          echo "Everything is fine";
-	          exit $?
+            echo "Everything is fine";
+            exit $?
           else
-	          echo "Vulnerabilities high detected";
-	          exit 1
+            echo "Vulnerabilities high detected";
+            exit 1
           fi 
         name: Probely - Getting Security Scan Vulnerabilities
   
