@@ -62,7 +62,6 @@ commands:
     steps:
     - attach_workspace:
           at: /tmp/workspace
-    - checkout
     - run:
         command: |
           # Check if API key is set
