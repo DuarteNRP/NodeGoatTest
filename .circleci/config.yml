@@ -86,11 +86,7 @@ commands:
               -H "Content-Type: application/json" \
               -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '.status' | tr -d '"')
           done
-          myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
-             -X GET \
-             -H "Content-Type: application/json" \
-             -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '. | {lows:.lows,mediums:.mediums,highs:.highs}')
-          echo $myvulnerabilities
+          echo $myid
         name: Probely - Getting Security Scan Vulnerabilities
   
 description: |
