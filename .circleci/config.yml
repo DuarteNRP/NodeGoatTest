@@ -67,7 +67,6 @@ commands:
           myid=`cat workspace/echo-output`
           mystatus=started
           echo $myid
-        name: Probely - Getting Security Scan Vulnerabilities
   
 description: |
   Use Probely to scan your web application for security vulnerabilities.
