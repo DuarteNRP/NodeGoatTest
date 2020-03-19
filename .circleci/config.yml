@@ -65,7 +65,7 @@ commands:
     - run:
         name: Probely - Getting Security Scan Vulnerabilities
         command: |
-          myid='$(cat /tmp/workspace/echo-output)'
+          myid=$(cat /tmp/workspace/echo-output)
           echo id:$myid
 description: |
   Use Probely to scan your web application for security vulnerabilities.
