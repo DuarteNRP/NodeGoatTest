@@ -64,18 +64,6 @@ commands:
           at: /tmp/workspace
     - run:
         command: |
-          # Check if API key is set
-          if [ -z "${<< parameters.api_key >>}" ]; then
-            echo "NO PROBELY API KEY SET"
-            echo "Please set your API key in the << parameters.api_key >> variable"
-            exit 1
-          fi
-          # Check if target id is set
-          if [ -z "<< parameters.target_id >>" ]; then
-            echo "NO PROBELY TARGET ID SET"
-            echo "Please set the target id as a parameter for this orb."
-            exit 1
-          fi
           myid=`cat workspace/echo-output`
           mystatus=started
           echo $myid
