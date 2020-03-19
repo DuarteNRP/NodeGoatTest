@@ -60,6 +60,8 @@ commands:
         description: The id of the target (website) to scan.
         type: string
     steps:
+    - attach_workspace:
+          at: /tmp/workspace
     - run:
         command: |
           # Check if API key is set
