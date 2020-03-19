@@ -64,9 +64,41 @@ commands:
           at: /tmp/workspace
     - run:
         command: |
+          # Check if API key is set
+          if [ -z "${<< parameters.api_key >>}" ]; then
+            echo "NO PROBELY API KEY SET"
+            echo "Please set your API key in the << parameters.api_key >> variable"
+            exit 1
+          fi
+          # Check if target id is set
+          if [ -z "<< parameters.target_id >>" ]; then
+            echo "NO PROBELY TARGET ID SET"
+            echo "Please set the target id as a parameter for this orb."
+            exit 1
+          fi
           myid=`cat workspace/echo-output`
           mystatus=started
-          echo $myid
+          while [ $mystatus != completed ]
+          do
+            sleep 60s
+            mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+              -X GET \
+              -H "Content-Type: application/json" \
+              -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '.status' | tr -d '"')
+          done
+          myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+             -X GET \
+             -H "Content-Type: application/json" \
+             -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '. | {lows:.lows,mediums:.mediums,highs:.highs}')
+          echo $myvulnerabilities
+          myh=`echo $myvulnerabilities | jq '.highs'`
+          if [[ $myh == 0 ]]; then
+            echo "Everything is fine";
+            exit $?
+          else
+            echo "Vulnerabilities high detected";
+            exit 1
+          fi
           exit 0
         name: Probely - Getting Security Scan Vulnerabilities
 description: |
