@@ -78,14 +78,6 @@ commands:
           fi
           myid=`cat workspace/echo-output`
           mystatus=started
-          while [ $mystatus != completed ]
-          do
-            sleep 60s
-            mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
-              -X GET \
-              -H "Content-Type: application/json" \
-              -H "Authorization: JWT ${<< parameters.api_key >>}" | jq '.status' | tr -d '"')
-          done
           echo $myid
         name: Probely - Getting Security Scan Vulnerabilities
   
