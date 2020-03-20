@@ -36,7 +36,9 @@ commands:
             -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
+          echo $mydir 
           echo $mydir > workspace/echo-output
+          echo `cat /temp/workspace/echo-output`
           exit $?
         name: Probely - Starting Security Scan
     - persist_to_workspace:
