@@ -36,9 +36,7 @@ commands:
             -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
-          echo myid:$myid 
           echo $myid > workspace/echo-output
-          echo `cat /tmp/workspace/echo-output`
           exit $?
         name: Probely - Starting Security Scan
     - persist_to_workspace:
@@ -67,8 +65,42 @@ commands:
     - run:
         name: Probely - Getting Security Scan Vulnerabilities
         command: |
+          # Check if API key is set
+          if [ -z "${<< parameters.api_key >>}" ]; then
+            echo "NO PROBELY API KEY SET"
+            echo "Please set your API key in the << parameters.api_key >> variable"
+            exit 1
+          fi
+          # Check if target id is set
+          if [ -z "<< parameters.target_id >>" ]; then
+            echo "NO PROBELY TARGET ID SET"
+            echo "Please set the target id as a parameter for this orb."
+            exit 1
+          fi
           myid=$(cat /tmp/workspace/echo-output)
-          echo id:$myid
+          mystatus=started
+          while [ $mystauts != completed ]
+          do
+            sleep 60s
+            mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status' | tr -d '"')
+          done
+          myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' | {lows:.lows,mediums:.mediums,highs:.highs}')
+          echo Vulnerabilities of your scan = $myvulerabilities
+          myhighs=`echo $myvulnerabilities | jq '.highs'`
+          if [[ $myhighs == 0 ]]; then
+            echo "Everything is fine!";
+            exit $?
+          else
+            echo "There are some high vulnerabilities";
+            exit 1
+          fi
+            
 description: |
   Use Probely to scan your web application for security vulnerabilities.
   Full orb source code: https://github.com/Probely/probely-orb
