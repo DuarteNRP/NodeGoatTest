@@ -93,7 +93,7 @@ commands:
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' | {lows:.lows,mediums:.mediums,highs:.highs}')
           echo Vulnerabilities of your scan = $myvulerabilities
           myhighs=`echo $myvulnerabilities | jq '.highs'`
-          if [[ $myhighs == 0 ]]; then
+          if [[ $myhighs -eq 0 ]]; then
             echo "Everything is fine!";
             exit $?
           else
