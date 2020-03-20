@@ -79,7 +79,7 @@ commands:
           fi
           myid=$(cat /tmp/workspace/echo-output)
           mystatus="started"
-          while [ $mystauts != "completed" ]
+          while [ $mystatus != "completed" ]
           do
             sleep 60s
             mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
