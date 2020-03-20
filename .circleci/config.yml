@@ -86,6 +86,7 @@ commands:
             -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status')
+            echo status: $mystatus
           done
           myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
             -X POST \
