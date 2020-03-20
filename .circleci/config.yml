@@ -94,7 +94,8 @@ commands:
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' . | {lows:.lows,mediums:.mediums,highs:.highs}')
           echo Vulnerabilities of your scan = $myvulnerabilities
-          myhighs=`echo $myvulnerabilities | jq '.highs'`
+          myhighs=`echo $myvulnerabilities | jq '.lows'`
+          echo highs: $myhighs
           if [[ $myhighs -eq 0 ]]; then
             echo "Everything is fine!";
             exit $?
