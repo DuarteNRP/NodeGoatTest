@@ -78,19 +78,19 @@ commands:
             exit 1
           fi
           myid=$(cat /tmp/workspace/echo-output)
-          mystatus=started
-          while [ $mystauts != completed ]
+          mystatus="started"
+          while [ $mystauts != "completed" ]
           do
             sleep 60s
             mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
             -X POST \
             -H "Content-Type: application/json" \
-            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status' | tr -d '"')
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status')
           done
           myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
             -X POST \
             -H "Content-Type: application/json" \
-            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' | {lows:.lows,mediums:.mediums,highs:.highs}')
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' . | {lows:.lows,mediums:.mediums,highs:.highs}')
           echo Vulnerabilities of your scan = $myvulerabilities
           myhighs=`echo $myvulnerabilities | jq '.highs'`
           if [[ $myhighs -eq 0 ]]; then
