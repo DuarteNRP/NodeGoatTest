@@ -38,6 +38,11 @@ commands:
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
           echo $myid > workspace/echo-output
+          myaux=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.| {user:.user_data,password:.ic_auth}')
+          echo $myaux
           exit $?
         name: Probely - Starting Security Scan
     - persist_to_workspace:
