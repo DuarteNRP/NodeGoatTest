@@ -41,7 +41,7 @@ commands:
           myaux=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
             -X POST \
             -H "Content-Type: application/json" \
-            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.| {user:.user_data,password:.ic_auth}')
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.| {user:.user_data}')
           echo $myaux
           exit $?
         name: Probely - Starting Security Scan
