@@ -38,11 +38,6 @@ commands:
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
           echo $myid > workspace/echo-output
-          myaux=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.| {user:.user_data}')
-          echo $myaux
           exit $?
         name: Probely - Starting Security Scan
     - persist_to_workspace:
@@ -94,12 +89,7 @@ commands:
             -X GET \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status' | tr -d '"')
-            mystatus2=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
-            -X GET \
-            -H "Content-Type: application/json" \
-            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.user_data')
             echo status: $mystatus
-            echo user: $mystatus2
           done
           # Get all vulnerabilities
           myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
