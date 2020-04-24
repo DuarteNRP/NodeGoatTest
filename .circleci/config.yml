@@ -38,6 +38,11 @@ commands:
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
           echo $myid > workspace/echo-output
+          mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X GET \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.')
+            echo status: $mystatus
           exit $?
         name: Probely - Starting Security Scan
     - persist_to_workspace:
@@ -103,7 +108,7 @@ commands:
             echo "Everything is fine!";
             exit $?
           else
-            echo "We find high vulnerabilities in your scan!";
+            echo "We found high vulnerabilities in your scan!";
             exit 1
           fi
             
