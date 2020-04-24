@@ -94,7 +94,12 @@ commands:
             -X GET \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status' | tr -d '"')
+            mystatus2=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X GET \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.user_data')
             echo status: $mystatus
+            echo user: $mystatus2
           done
           # Get all vulnerabilities
           myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
