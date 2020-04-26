@@ -47,7 +47,7 @@ commands:
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
           #Change user_data of this scan 
           curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$my_id/ \
-            -X PATCH -d '{"user_data":"<< parameters.user_data >>"}'' \
+            -X PATCH -d '{"user_data":"<< parameters.user_data >>"}' \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"
           exit $?
