@@ -188,13 +188,13 @@ workflows:
     jobs:
       - Scan:
           target_id: 36oFYYRFkkuR
-          user_data: testing!
+          user_data: some_test
           filters:
             branches:
               ignore: master        
       - Vulnerabilities:
           target_id: 36oFYYRFkkuR
-          user_data: testing!
+          user_data: some_test
           filters:
             branches:
               only: master
