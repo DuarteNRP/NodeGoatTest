@@ -113,12 +113,15 @@ commands:
             echo $my_scan
             my_highs=`echo $my_scan | jq '.highs' | tr -d '"'`
             my_status=`echo $my_scan | jq '.status' | tr -d '"'`
+            echo "oh"
             if [ $my_highs -gt 0 ] #Search for high Vulnerabilities
               then
               echo "We found high vulnerabilities in your scan!"
               exit 1
             fi
+            echo "ohh"
             ((count++))
+            echo "ohhhh"
             echo "count="$count
             echo "status="$my_status
             echo "highs="$my_highs
