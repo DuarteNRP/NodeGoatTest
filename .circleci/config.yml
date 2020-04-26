@@ -104,7 +104,7 @@ commands:
               exit 1
             fi
             sleep 60s
-            my_scan=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >>/ \
+            my_scan=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
             -X GET \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.results[0] | {status:.status,highs:.highs} ')
@@ -117,17 +117,17 @@ commands:
             fi
             ((count++))
           done
-          if [ "my_status" != completed ]
+          if [ "$my_status" != completed ]
             then
             echo "Something was wrong!"
             exit 1
           fi
           # Get all vulnerabilities
-          myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
+          my_vulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
             -X GET \
             -H "Content-Type: application/json" \
-            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' . | {lows:.lows,mediums:.mediums,highs:.highs}')
-          echo Vulnerabilities of your scan = $myvulnerabilities
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.results[0] | {lows:.lows,mediums:.mediums,highs:.highs}')
+          echo Vulnerabilities of your scan = $my_vulnerabilities
           exit $?
 description: |
   Use Probely to scan your web application for security vulnerabilities.
@@ -188,13 +188,13 @@ workflows:
     jobs:
       - Scan:
           target_id: 36oFYYRFkkuR
-          user_data: testing
+          user_data: testing!
           filters:
             branches:
               ignore: master        
       - Vulnerabilities:
           target_id: 36oFYYRFkkuR
-          user_data: testing
+          user_data: testing!
           filters:
             branches:
               only: master
