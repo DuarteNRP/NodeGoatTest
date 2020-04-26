@@ -120,7 +120,7 @@ commands:
               exit 1
             fi
             echo "ohh"
-            ((count++))
+            $count=$count+1
             echo "ohhhh"
             echo "count="$count
             echo "status="$my_status
