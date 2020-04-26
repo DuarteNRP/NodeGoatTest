@@ -17,7 +17,6 @@ commands:
         description: The id of the target (website) to scan.
         type: string
     steps:
-    - run: mkdir -p workspace
     - run:
         command: |
           # Check if API key is set
@@ -46,10 +45,6 @@ commands:
           echo "1"
           exit $?
         name: Probely - Starting Security Scan
-    - persist_to_workspace:
-          root: workspace
-          paths:
-            - echo-output  
   vulnerabilities:
     description: |
       Get scan vulnerabilities.
@@ -127,7 +122,6 @@ executors:
         TERM: dumb
       image: cibuilds/base:latest
     resource_class: small
-    working_directory: /tmp
 
 jobs:
   Scan:
