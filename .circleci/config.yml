@@ -116,12 +116,16 @@ commands:
               exit 1
             fi
             ((count++))
+            echo "count="$count
+            echo "status="$my_status
+            echo "highs="$my_highs
           done
           if [ "$my_status" != completed ]
             then
             echo "Something was wrong!"
             exit 1
           fi
+          echo "chegou aqui"
           # Get all vulnerabilities
           my_vulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
             -X GET \
