@@ -109,7 +109,7 @@ commands:
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.results[0] | {status:.status,highs:.highs} ')
             my_highs=`echo $my_scan | jq '.highs' | tr -d '"'`
-            my_status=`echo $my_scan | jq '.highs' | tr -d '"'`
+            my_status=`echo $my_scan | jq '.status' | tr -d '"'`
             if [ $my_highs -gt 0 ] #Search for high Vulnerabilities
               then
               echo "We found high vulnerabilities in your scan!"
