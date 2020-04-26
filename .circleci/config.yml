@@ -148,6 +148,7 @@ jobs:
     executor: alpine
     parameters:
       api_key:
+        default: PROBELY_API_KEY
         description: |
           The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
         type: env_var_name
@@ -180,7 +181,7 @@ jobs:
     - vulnerabilities:
         target_id: << parameters.target_id >>
         user_data: << parameters.user_data >>
-        
+
 workflows:
   version: 2
   scan-and-vulnerabilities:
