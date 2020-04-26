@@ -96,6 +96,7 @@ commands:
           my_status="started"
           # For every minute verify if the scan is over
           count=0;
+          echo "ola"
           while [ "$my_status" = started ]
           do
             if [ $count -eq 1440 ] # We will wait 1 day
