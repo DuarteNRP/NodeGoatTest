@@ -43,7 +43,8 @@ commands:
           #  -H "Content-Type: application/json" \
           #  -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.')
           #  echo status: $mystatus
-          exit "1"
+          echo "1"
+          exit $?
         name: Probely - Starting Security Scan
     - persist_to_workspace:
           root: workspace
