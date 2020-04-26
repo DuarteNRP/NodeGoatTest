@@ -166,8 +166,6 @@ workflows:
             branches:
               ignore: master        
       - Vulnerabilities:
-          requires:
-            - Scan
           target_id: 36oFYYRFkkuR
           filters:
             branches:
