@@ -1,42 +1,173 @@
 version: 2.1
+commands:
+  scan:
+    description: |
+      Start the scan on a target (website) using Probely.
+    parameters:
+      api_key:
+        default: PROBELY_API_KEY
+        description: |
+          The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
+        type: env_var_name
+      api_url:
+        default: https://api.probely.com
+        description: The URL of Probely's API
+        type: string
+      target_id:
+        description: The id of the target (website) to scan.
+        type: string
+    steps:
+    - run: mkdir -p workspace
+    - run:
+        command: |
+          # Check if API key is set
+          if [ -z "${<< parameters.api_key >>}" ]; then
+            echo "NO PROBELY API KEY SET"
+            echo "Please set your API key in the << parameters.api_key >> variable"
+            exit 1
+          fi
+          # Check if target id is set
+          if [ -z "<< parameters.target_id >>" ]; then
+            echo "NO PROBELY TARGET ID SET"
+            echo "Please set the target id as a parameter for this orb."
+            exit 1
+          fi
+          # Save the id to use in Vulnerabilities job
+          myid=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.id' | tr -d '"')
+          echo $myid > workspace/echo-output
+          mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X GET \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.')
+            echo status: $mystatus
+          exit $?
+        name: Probely - Starting Security Scan
+    - persist_to_workspace:
+          root: workspace
+          paths:
+            - echo-output  
+  vulnerabilities:
+    description: |
+      Get scan vulnerabilities.
+    parameters:
+      api_key:
+        default: PROBELY_API_KEY
+        description: |
+          The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
+        type: env_var_name
+      api_url:
+        default: https://api.probely.com
+        description: The URL of Probely's API
+        type: string
+      target_id:
+        description: The id of the target (website) to scan.
+        type: string
+    steps:
+    - attach_workspace:
+          at: /tmp/workspace
+    - run:
+        name: Probely - Getting Security Scan Vulnerabilities
+        command: |
+          # Check if API key is set
+          if [ -z "${<< parameters.api_key >>}" ]; then
+            echo "NO PROBELY API KEY SET"
+            echo "Please set your API key in the << parameters.api_key >> variable"
+            exit 1
+          fi
+          # Check if target id is set
+          if [ -z "<< parameters.target_id >>" ]; then
+            echo "NO PROBELY TARGET ID SET"
+            echo "Please set the target id as a parameter for this orb."
+            exit 1
+          fi
+          # Load the id that we saved before
+          myid=$(cat /tmp/workspace/echo-output)
+          mystatus="started"
+          # For every minute verify if the scan is over
+          while [ "$mystatus" != completed ]
+          do
+            sleep 60s
+            mystatus=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X GET \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.status' | tr -d '"')
+            echo status: $mystatus
+          done
+          # Get all vulnerabilities
+          myvulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/$myid/ \
+            -X GET \
+            -H "Content-Type: application/json" \
+            -H "Authorization: JWT ${<< parameters.api_key >>}"| jq ' . | {lows:.lows,mediums:.mediums,highs:.highs}')
+          echo Vulnerabilities of your scan = $myvulnerabilities
+          # We want high vulnerabilities
+          myhighs=`echo $myvulnerabilities | jq '.highs'`
+          if [[ $myhighs -eq 0 ]]; then
+            echo "Everything is fine!";
+            exit $?
+          else
+            echo "We found high vulnerabilities in your scan!";
+            exit 1
+          fi
+            
+description: |
+  Use Probely to scan your web application for security vulnerabilities.
+  Full orb source code: https://github.com/Probely/probely-orb
+display:
+  home_url: https://probely.com/
+  source_url: https://github.com/Probely/probely-orb
 
-orbs:
-  probely: probely/security-scan@1.1.3
+executors:
+  alpine:
+    docker:
+    - environment:
+        TERM: dumb
+      image: cibuilds/base:latest
+    resource_class: small
+    working_directory: /tmp
+
 jobs:
-
-  Test:
-    docker:
-      - image: circleci/node:12.14.1
+  Scan:
+    description: Start a scan on a target (website) using Probely.
+    executor: alpine
+    parameters:
+      api_key:
+        default: PROBELY_API_KEY
+        description: |
+          The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
+        type: env_var_name
+      target_id:
+        description: The id of the target (website) to scan.
+        type: string
     steps:
-      - checkout
-      - run:
-          name: Install
-          command: yarn install
-          no_output_timeout: 30m
-      - run:
-          name: Test
-          command: yarn test
-          no_output_timeout: 30m
+    - scan:
+        target_id: << parameters.target_id >>
 
-  Deploy:
-    docker:
-      - image: circleci/node:12.14.1
+  Vulnerabilities:
+    description: Get scan vulnerabilities.
+    executor: alpine
+    parameters:
+      api_key:
+        default: PROBELY_API_KEY
+        description: |
+          The Probely API key to use, defined in the PROBELY_API_KEY environment variable.
+        type: env_var_name
+      target_id:
+        description: The id of the target (website) to scan.
+        type: string
     steps:
-      - checkout
-      - run:
-          name: Deploy
-          command: echo "run deploy command here"
-          no_output_timeout: 30m
-
+    - vulnerabilities:
+        target_id: << parameters.target_id >>
+      
 workflows:
   version: 2
   build-and-test:
     jobs:
-      - Test
-      - Deploy:
+      - Scan:
+          target_id: 36oFYYRFkkuR
+      - Vulnerabilities:
           requires:
-            - Test
-      - probely/scan:
-          requires:
-            - Deploy
+            - Scan
           target_id: 36oFYYRFkkuR
