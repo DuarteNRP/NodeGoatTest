@@ -180,9 +180,10 @@ jobs:
     - vulnerabilities:
         target_id: << parameters.target_id >>
         user_data: << parameters.user_data >>
+        
 workflows:
   version: 2
-  build-and-test:
+  scan-and-vulnerabilities:
     jobs:
       - Scan:
           target_id: 36oFYYRFkkuR
