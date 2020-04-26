@@ -98,7 +98,7 @@ commands:
           count=0;
           while [ "$my_status" = started ]
           do
-            if [ count -eq 1440] # We will wait 1 day
+            if [ count -eq 1440 ] # We will wait 1 day
               then
               echo "Took to much time!"
               exit 1
@@ -117,7 +117,7 @@ commands:
             fi
             ((count++))
           done
-          if [ "my_status" != completed]
+          if [ "my_status" != completed ]
             then
             echo "Something was wrong!"
             exit 1
