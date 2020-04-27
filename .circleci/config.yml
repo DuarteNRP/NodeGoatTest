@@ -96,7 +96,6 @@ commands:
           my_status="started"
           # For every minute verify if the scan is over
           count=0;
-          echo "ola"
           while [ "$my_status" = started ]
           do
             if [ $count -eq 1440 ] # We will wait 1 day
@@ -104,7 +103,6 @@ commands:
               echo "Took to much time!"
               exit 1
             fi
-            echo "passou o count"
             sleep 60s
             my_scan=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
               -X GET \
@@ -113,25 +111,18 @@ commands:
             echo $my_scan
             my_highs=`echo $my_scan | jq '.highs' | tr -d '"'`
             my_status=`echo $my_scan | jq '.status' | tr -d '"'`
-            echo "oh"
             if [ $my_highs -gt 0 ] #Search for high Vulnerabilities
               then
               echo "We found high vulnerabilities in your scan!"
               exit 1
             fi
-            echo "ohh"
-            count=$count+1
-            echo "ohhhh"
-            echo "count="$count
-            echo "status="$my_status
-            echo "highs="$my_highs
+            count=$((cout+1))
           done
           if [ "$my_status" != completed ]
             then
-            echo "Something was wrong!"
+            echo "Something heppened while your scan was not completed!"
             exit 1
           fi
-          echo "chegou aqui"
           # Get all vulnerabilities
           my_vulnerabilities=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
             -X GET \
