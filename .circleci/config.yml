@@ -94,8 +94,8 @@ commands:
             exit 1
           fi
           my_status="started"
-          # For every minute verify if the scan is over
           count=0;
+          # For every minute verify if status changes
           while [ "$my_status" = started ]
           do
             if [ $count -eq 1440 ] # We will wait 1 day
@@ -104,11 +104,11 @@ commands:
               exit 1
             fi
             sleep 60s
+            # Get status and high vulnerabilities
             my_scan=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scans/?search=<< parameters.user_data >> \
               -X GET \
               -H "Content-Type: application/json" \
               -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.results[0] | {status:.status,highs:.highs} ')
-            echo $my_scan
             my_highs=`echo $my_scan | jq '.highs' | tr -d '"'`
             my_status=`echo $my_scan | jq '.status' | tr -d '"'`
             if [ $my_highs -gt 0 ] #Search for high Vulnerabilities
@@ -118,9 +118,10 @@ commands:
             fi
             count=$((cout+1))
           done
+          # If status is diffente from what we expected
           if [ "$my_status" != completed ]
             then
-            echo "Something heppened while your scan was not completed!"
+            echo "Something happened while your scan was not completed!"
             exit 1
           fi
           # Get all vulnerabilities
