@@ -40,7 +40,7 @@ commands:
             echo "Please set the user data as a parameter for this orb."
             exit 1
           fi
-          echo "|"${CIRCLE_BRANCH}"|"
+          echo "|"${CIRCLE_SHA1}"|"
           # Save the id of this scan
           my_id=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
             -X POST \
@@ -94,7 +94,7 @@ commands:
             echo "Please set the user data as a parameter for this orb."
             exit 1
           fi
-          echo "|"${CIRCLE_BRANCH}"|"
+          echo "|"${CIRCLE_SHA1}"|"
           my_status="started"
           count=0;
           # For every minute verify if status changes
