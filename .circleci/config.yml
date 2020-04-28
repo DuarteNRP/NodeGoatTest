@@ -40,7 +40,7 @@ commands:
             echo "Please set the user data as a parameter for this orb."
             exit 1
           fi
-          echo ${CI_PULL_REQUEST}
+          echo "|"${CIRCLE_BRANCH}"|"
           # Save the id of this scan
           my_id=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
             -X POST \
