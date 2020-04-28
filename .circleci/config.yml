@@ -94,7 +94,7 @@ commands:
             echo "Please set the user data as a parameter for this orb."
             exit 1
           fi
-          echo ${CI_PULL_REQUEST}
+          echo "|"${CIRCLE_BRANCH}"|"
           my_status="started"
           count=0;
           # For every minute verify if status changes
