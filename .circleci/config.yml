@@ -40,7 +40,7 @@ commands:
             echo "Please set the user data as a parameter for this orb."
             exit 1
           fi
-          echo "|"${CIRCLE_BUILD_NUM}"|"
+          echo "|"${CIRCLE_SHA1}"|"
           # Save the id of this scan
           my_id=$(curl << parameters.api_url >>/targets/<< parameters.target_id >>/scan_now/ \
             -X POST \
@@ -51,7 +51,7 @@ commands:
             -X PATCH -d '{"user_data":"<< parameters.user_data >>"}' \
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"
-          echo "|"${CIRCLE_BUILD_NUM}"|"
+          echo "|"${CIRCLE_SHA1}"|"
           exit $?
         name: Probely - Starting Security Scan
   vulnerabilities:
@@ -95,7 +95,7 @@ commands:
             echo "Please set the user data as a parameter for this orb."
             exit 1
           fi
-          echo "|"${CIRCLE_BUILD_NUM}"|"
+          echo "|"${CIRCLE_SHA1}"|"
           my_status="started"
           count=0;
           # For every minute verify if status changes
@@ -133,7 +133,7 @@ commands:
             -H "Content-Type: application/json" \
             -H "Authorization: JWT ${<< parameters.api_key >>}"| jq '.results[0] | {lows:.lows,mediums:.mediums,highs:.highs}')
           echo Vulnerabilities of your scan = $my_vulnerabilities
-          echo "|"${CIRCLE_BUILD_NUM}"|"
+          echo "|"${CIRCLE_SHA1}"|"
           exit $?
 description: |
   Use Probely to scan your web application for security vulnerabilities.
